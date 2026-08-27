@@ -16,7 +16,7 @@ async function main() {
     await prisma.department.upsert({ where: { name }, update: { description }, create: { name, description } });
   }
 
-  const passwordHash = await bcrypt.hash("ChangeMe123!", 12);
+  const passwordHash = await bcrypt.hash("ChangeMe123!", 10);
   await prisma.user.upsert({
     where: { email: "admin@shis.edu.in" },
     update: { passwordHash, role: Role.ADMIN, isActive: true },

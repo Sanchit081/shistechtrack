@@ -8,3 +8,5 @@ prisma/*.db
 prisma/*.db-journal
 uploads
 .DS_Store
+.vercel
+.env*
