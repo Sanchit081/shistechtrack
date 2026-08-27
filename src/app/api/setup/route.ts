@@ -6,16 +6,15 @@ import { Role } from "@prisma/client";
 export async function POST() {
   try {
     // Create tables using raw SQL since Prisma db push doesn't work in serverless
-    const createTables = `
-      CREATE TABLE IF NOT EXISTS "Department" (
+    const createTables = [
+      `CREATE TABLE IF NOT EXISTS "Department" (
           "id" TEXT NOT NULL,
           "name" TEXT NOT NULL,
           "description" TEXT,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT "Department_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "User" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "User" (
           "id" TEXT NOT NULL,
           "name" TEXT NOT NULL,
           "email" TEXT NOT NULL,
@@ -28,18 +27,16 @@ export async function POST() {
           "updatedAt" TIMESTAMP(3) NOT NULL,
           "lastLogin" TIMESTAMP(3),
           CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "ChatRoom" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "ChatRoom" (
           "id" TEXT NOT NULL,
           "name" TEXT NOT NULL,
           "type" TEXT NOT NULL DEFAULT 'GENERAL',
           "departmentId" TEXT,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT "ChatRoom_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "ChatMessage" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "ChatMessage" (
           "id" TEXT NOT NULL,
           "roomId" TEXT NOT NULL,
           "senderId" TEXT NOT NULL,
@@ -49,9 +46,8 @@ export async function POST() {
           "editedAt" TIMESTAMP(3),
           "deletedAt" TIMESTAMP(3),
           CONSTRAINT "ChatMessage_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "Task" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "Task" (
           "id" TEXT NOT NULL,
           "title" TEXT NOT NULL,
           "description" TEXT NOT NULL,
@@ -67,24 +63,21 @@ export async function POST() {
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           "updatedAt" TIMESTAMP(3) NOT NULL,
           CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "UserDepartment" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "UserDepartment" (
           "userId" TEXT NOT NULL,
           "departmentId" TEXT NOT NULL,
           CONSTRAINT "UserDepartment_pkey" PRIMARY KEY ("userId", "departmentId")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "TaskComment" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "TaskComment" (
           "id" TEXT NOT NULL,
           "taskId" TEXT NOT NULL,
           "userId" TEXT NOT NULL,
           "comment" TEXT NOT NULL,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT "TaskComment_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "Attachment" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "Attachment" (
           "id" TEXT NOT NULL,
           "messageId" TEXT NOT NULL,
           "uploadedById" TEXT NOT NULL,
@@ -95,9 +88,8 @@ export async function POST() {
           "storagePath" TEXT NOT NULL,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT "Attachment_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "Notification" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "Notification" (
           "id" TEXT NOT NULL,
           "userId" TEXT NOT NULL,
           "type" TEXT NOT NULL,
@@ -107,9 +99,8 @@ export async function POST() {
           "isRead" BOOLEAN NOT NULL DEFAULT false,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE TABLE IF NOT EXISTS "AuditLog" (
+      )`,
+      `CREATE TABLE IF NOT EXISTS "AuditLog" (
           "id" TEXT NOT NULL,
           "userId" TEXT NOT NULL,
           "action" TEXT NOT NULL,
@@ -118,14 +109,15 @@ export async function POST() {
           "metadata" TEXT,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
-      );
-      
-      CREATE UNIQUE INDEX IF NOT EXISTS "Department_name_key" ON "Department"("name");
-      CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
-      CREATE UNIQUE INDEX IF NOT EXISTS "Attachment_storedFilename_key" ON "Attachment"("storedFilename");
-    `;
+      )`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS "Department_name_key" ON "Department"("name")`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS "Attachment_storedFilename_key" ON "Attachment"("storedFilename")`
+    ];
 
-    await prisma.$executeRawUnsafe(createTables);
+    for (const sql of createTables) {
+      await prisma.$executeRawUnsafe(sql);
+    }
 
     // Check if database is already set up
     const userCount = await prisma.user.count();
