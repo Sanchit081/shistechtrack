@@ -5,6 +5,128 @@ import { Role } from "@prisma/client";
 
 export async function POST() {
   try {
+    // Create tables using raw SQL since Prisma db push doesn't work in serverless
+    const createTables = `
+      CREATE TABLE IF NOT EXISTS "Department" (
+          "id" TEXT NOT NULL,
+          "name" TEXT NOT NULL,
+          "description" TEXT,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "Department_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "User" (
+          "id" TEXT NOT NULL,
+          "name" TEXT NOT NULL,
+          "email" TEXT NOT NULL,
+          "passwordHash" TEXT NOT NULL,
+          "role" TEXT NOT NULL DEFAULT 'EMPLOYEE',
+          "presenceStatus" TEXT NOT NULL DEFAULT 'AVAILABLE',
+          "profileImage" TEXT,
+          "isActive" BOOLEAN NOT NULL DEFAULT true,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL,
+          "lastLogin" TIMESTAMP(3),
+          CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "ChatRoom" (
+          "id" TEXT NOT NULL,
+          "name" TEXT NOT NULL,
+          "type" TEXT NOT NULL DEFAULT 'GENERAL',
+          "departmentId" TEXT,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "ChatRoom_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "ChatMessage" (
+          "id" TEXT NOT NULL,
+          "roomId" TEXT NOT NULL,
+          "senderId" TEXT NOT NULL,
+          "message" TEXT NOT NULL,
+          "messageType" TEXT NOT NULL DEFAULT 'TEXT',
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "editedAt" TIMESTAMP(3),
+          "deletedAt" TIMESTAMP(3),
+          CONSTRAINT "ChatMessage_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "Task" (
+          "id" TEXT NOT NULL,
+          "title" TEXT NOT NULL,
+          "description" TEXT NOT NULL,
+          "assignedToId" TEXT NOT NULL,
+          "assignedById" TEXT NOT NULL,
+          "departmentId" TEXT NOT NULL,
+          "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
+          "status" TEXT NOT NULL DEFAULT 'PENDING',
+          "progressPercentage" INTEGER NOT NULL DEFAULT 0,
+          "startDate" TIMESTAMP(3),
+          "dueDate" TIMESTAMP(3),
+          "completedAt" TIMESTAMP(3),
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL,
+          CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "UserDepartment" (
+          "userId" TEXT NOT NULL,
+          "departmentId" TEXT NOT NULL,
+          CONSTRAINT "UserDepartment_pkey" PRIMARY KEY ("userId", "departmentId")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "TaskComment" (
+          "id" TEXT NOT NULL,
+          "taskId" TEXT NOT NULL,
+          "userId" TEXT NOT NULL,
+          "comment" TEXT NOT NULL,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "TaskComment_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "Attachment" (
+          "id" TEXT NOT NULL,
+          "messageId" TEXT NOT NULL,
+          "uploadedById" TEXT NOT NULL,
+          "originalFilename" TEXT NOT NULL,
+          "storedFilename" TEXT NOT NULL,
+          "mimeType" TEXT NOT NULL,
+          "fileSize" INTEGER NOT NULL,
+          "storagePath" TEXT NOT NULL,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "Attachment_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "Notification" (
+          "id" TEXT NOT NULL,
+          "userId" TEXT NOT NULL,
+          "type" TEXT NOT NULL,
+          "title" TEXT NOT NULL,
+          "message" TEXT NOT NULL,
+          "relatedTaskId" TEXT,
+          "isRead" BOOLEAN NOT NULL DEFAULT false,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "AuditLog" (
+          "id" TEXT NOT NULL,
+          "userId" TEXT NOT NULL,
+          "action" TEXT NOT NULL,
+          "entityType" TEXT NOT NULL,
+          "entityId" TEXT NOT NULL,
+          "metadata" TEXT,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
+      );
+      
+      CREATE UNIQUE INDEX IF NOT EXISTS "Department_name_key" ON "Department"("name");
+      CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
+      CREATE UNIQUE INDEX IF NOT EXISTS "Attachment_storedFilename_key" ON "Attachment"("storedFilename");
+    `;
+
+    await prisma.$executeRawUnsafe(createTables);
+
     // Check if database is already set up
     const userCount = await prisma.user.count();
     if (userCount > 0) {
