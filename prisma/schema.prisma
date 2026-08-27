@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  DOCUMENT
+  FILE
+}
+
+enum PresenceStatus {
+  AVAILABLE
+  AWAY
+  DO_NOT_DISTURB
+  BE_RIGHT_BACK
+  OFFLINE
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(EMPLOYEE)
+  presenceStatus PresenceStatus @default(AVAILABLE)
+  profileImage  String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lastLogin     DateTime?
+  departments   UserDepartment[]
+  assignedTasks Task[]         @relation("TaskAssignee")
+  createdTasks  Task[]         @relation("TaskCreator")
+  comments      TaskComment[]
+  messages      ChatMessage[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  attachments   Attachment[]
+}
+
+model Department {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  createdAt   DateTime         @default(now())
+  users       UserDepartment[]
+  tasks       Task[]
+  rooms       ChatRoom[]
+}
+
+model UserDepartment {
+  userId       String
+  departmentId String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  @@id([userId, departmentId])
+}
+
+model Task {
+  id                String         @id @default(cuid())
+  title             String
+  description       String
+  assignedToId      String
+  assignedById      String
+  departmentId      String
+  priority          Priority       @default(MEDIUM)
+  status            TaskStatus     @default(PENDING)
+  progressPercentage Int            @default(0)
+  startDate         DateTime?
+  dueDate           DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  assignedTo        User           @relation("TaskAssignee", fields: [assignedToId], references: [id])
+  assignedBy        User           @relation("TaskCreator", fields: [assignedById], references: [id])
+  department        Department     @relation(fields: [departmentId], references: [id])
+  comments          TaskComment[]
+  notifications     Notification[]
+}
+
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  comment   String
+  createdAt DateTime @default(now())
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model ChatRoom {
+  id           String        @id @default(cuid())
+  name         String
+  type         String        @default("GENERAL")
+  departmentId String?
+  createdAt    DateTime      @default(now())
+  department   Department?   @relation(fields: [departmentId], references: [id])
+  messages     ChatMessage[]
+}
+
+model ChatMessage {
+  id           String       @id @default(cuid())
+  roomId       String
+  senderId     String
+  message      String
+  messageType  MessageType  @default(TEXT)
+  createdAt    DateTime     @default(now())
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  room         ChatRoom     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id])
+  attachments  Attachment[]
+}
+
+model Attachment {
+  id               String       @id @default(cuid())
+  messageId        String
+  uploadedById     String
+  originalFilename  String
+  storedFilename    String       @unique
+  mimeType         String
+  fileSize         Int
+  storagePath      String
+  createdAt        DateTime     @default(now())
+  message          ChatMessage  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  uploadedBy       User         @relation(fields: [uploadedById], references: [id])
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String
+  title         String
+  message       String
+  relatedTaskId String?
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  relatedTask   Task?    @relation(fields: [relatedTaskId], references: [id], onDelete: SetNull)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  entityType String
+  entityId   String
+  metadata   String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+}

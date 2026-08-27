@@ -1,0 +1,6 @@
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import TaskList from "@/app/dashboard/tasks/task-list";
+
+export default async function MyTasksPage() { const user = await getCurrentUser(); if (!user) redirect("/login"); if (user.role === "ADMIN") redirect("/admin/dashboard"); const tasks = await prisma.task.findMany({ where: { assignedToId: user.id }, include: { department: true, comments: { include: { user: { select: { name: true } } }, orderBy: { createdAt: "desc" } } }, orderBy: { dueDate: "asc" } }); return <main className="workspace"><aside className="sidebar"><div className="side-brand">SHIS<span>•</span></div><p className="side-label">WORKSPACE</p><nav><a href="/dashboard">◈ <span>My dashboard</span></a><a className="active" href="/dashboard/tasks">□ <span>My tasks</span></a><a href="/chat">◌ <span>Team chat</span></a></nav></aside><section className="workspace-main"><header className="topbar"><span>IT DEPARTMENT / MY TASKS</span><button className="profile-chip">{user.name.charAt(0)}</button></header><div className="page-content"><div className="welcome"><p className="eyebrow">MY TASKS</p><h1>Work queue</h1><p>Update your own task status and progress below.</p></div><TaskList initialTasks={tasks} /></div></section></main>; }

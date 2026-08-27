@@ -1,0 +1,18 @@
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import LiveClock from "@/components/live-clock";
+import ProfileMenu from "@/components/profile-menu";
+import { getGreeting } from "@/lib/greeting";
+
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if (user.role === "ADMIN") redirect("/admin/dashboard");
+  const tasks = await prisma.task.findMany({ where: { assignedToId: user.id }, include: { department: true }, orderBy: { dueDate: "asc" }, take: 8 });
+  const counts = { total: tasks.length, pending: tasks.filter((task) => task.status === "PENDING").length, progress: tasks.filter((task) => task.status === "IN_PROGRESS").length, complete: tasks.filter((task) => task.status === "COMPLETED").length };
+  return <WorkspaceShell user={user} eyebrow="MY DASHBOARD" title={`${getGreeting()}, ${user.name.split(" ")[0]}.`} subtitle="Here is your current IT workload."><div className="stat-grid"><Stat label="Total assigned" value={counts.total} tone="dark"/><Stat label="Pending" value={counts.pending}/><Stat label="In progress" value={counts.progress}/><Stat label="Completed" value={counts.complete}/></div><section className="content-section"><div className="section-heading"><div><p className="eyebrow">YOUR WORK QUEUE</p><h2>My tasks</h2></div><a href="/dashboard/tasks">View all ↗</a></div><div className="task-list">{tasks.length === 0 ? <div className="empty-state">No tasks assigned yet.</div> : tasks.map((task) => <article className="task-row" key={task.id}><div className="task-icon">{task.status === "COMPLETED" ? "✓" : "↗"}</div><div className="task-main"><strong>{task.title}</strong><span>{task.department.name}</span></div><div className={`priority ${task.priority.toLowerCase()}`}>{task.priority}</div><div className="task-status">{task.status.replace("_", " ")}</div><div className="task-date">{task.dueDate ? new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short" }).format(task.dueDate) : "No deadline"}</div></article>)}</div></section></WorkspaceShell>;
+}
+
+function Stat({ label, value, tone }: { label: string; value: number; tone?: string }) { return <div className={`stat-card ${tone ?? ""}`}><span>{label}</span><strong>{value.toString().padStart(2, "0")}</strong><small>THIS PERIOD</small></div>; }
+function WorkspaceShell({ user, eyebrow, title, subtitle, children }: { user: { id: string; name: string; presenceStatus: string }; eyebrow: string; title: string; subtitle: string; children: React.ReactNode }) { return <main className="workspace"><aside className="sidebar"><div className="side-brand">SHIS<span>•</span></div><p className="side-label">WORKSPACE</p><nav><a className="active" href="/dashboard">◈ <span>My dashboard</span></a><a href="/dashboard/tasks">□ <span>My tasks</span></a><a href="/chat">◌ <span>Team chat</span></a><a href="/notifications">◇ <span>Notifications</span></a></nav><div className="side-bottom"><ProfileMenu initial={user.name} userId={user.id} initialStatus={user.presenceStatus} /></div></aside><section className="workspace-main"><header className="topbar"><span>IT DEPARTMENT / {eyebrow}</span><div className="topbar-actions"><LiveClock /><a className="icon-button" href="/notifications" aria-label="Notifications">♢</a><ProfileMenu initial={user.name} userId={user.id} initialStatus={user.presenceStatus} compact /></div></header><div className="page-content"><div className="welcome"><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{subtitle}</p></div>{children}<footer className="product-credit">Product Designed by Sanchit</footer></div></section></main>; }
