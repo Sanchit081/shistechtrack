@@ -45,8 +45,8 @@ export async function POST() {
           "name" TEXT NOT NULL,
           "email" TEXT NOT NULL,
           "passwordHash" TEXT NOT NULL,
-          "role" TEXT NOT NULL DEFAULT 'EMPLOYEE',
-          "presenceStatus" TEXT NOT NULL DEFAULT 'AVAILABLE',
+          "role" "Role" NOT NULL DEFAULT 'EMPLOYEE',
+          "presenceStatus" "PresenceStatus" NOT NULL DEFAULT 'AVAILABLE',
           "profileImage" TEXT,
           "isActive" BOOLEAN NOT NULL DEFAULT true,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -67,7 +67,7 @@ export async function POST() {
           "roomId" TEXT NOT NULL,
           "senderId" TEXT NOT NULL,
           "message" TEXT NOT NULL,
-          "messageType" TEXT NOT NULL DEFAULT 'TEXT',
+          "messageType" "MessageType" NOT NULL DEFAULT 'TEXT',
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           "editedAt" TIMESTAMP(3),
           "deletedAt" TIMESTAMP(3),
@@ -80,8 +80,8 @@ export async function POST() {
           "assignedToId" TEXT NOT NULL,
           "assignedById" TEXT NOT NULL,
           "departmentId" TEXT NOT NULL,
-          "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
-          "status" TEXT NOT NULL DEFAULT 'PENDING',
+          "priority" "Priority" NOT NULL DEFAULT 'MEDIUM',
+          "status" "TaskStatus" NOT NULL DEFAULT 'PENDING',
           "progressPercentage" INTEGER NOT NULL DEFAULT 0,
           "startDate" TIMESTAMP(3),
           "dueDate" TIMESTAMP(3),
@@ -140,6 +140,24 @@ export async function POST() {
       `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")`,
       `CREATE UNIQUE INDEX IF NOT EXISTS "Attachment_storedFilename_key" ON "Attachment"("storedFilename")`
     ];
+
+    // Drop existing tables if they exist with wrong schema
+    const dropTables = [
+      `DROP TABLE IF EXISTS "AuditLog" CASCADE`,
+      `DROP TABLE IF EXISTS "Notification" CASCADE`,
+      `DROP TABLE IF EXISTS "Attachment" CASCADE`,
+      `DROP TABLE IF EXISTS "TaskComment" CASCADE`,
+      `DROP TABLE IF EXISTS "UserDepartment" CASCADE`,
+      `DROP TABLE IF EXISTS "Task" CASCADE`,
+      `DROP TABLE IF EXISTS "ChatMessage" CASCADE`,
+      `DROP TABLE IF EXISTS "ChatRoom" CASCADE`,
+      `DROP TABLE IF EXISTS "User" CASCADE`,
+      `DROP TABLE IF EXISTS "Department" CASCADE`
+    ];
+
+    for (const sql of dropTables) {
+      await prisma.$executeRawUnsafe(sql);
+    }
 
     for (const sql of createTables) {
       await prisma.$executeRawUnsafe(sql);
