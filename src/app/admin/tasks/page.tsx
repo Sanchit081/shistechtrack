@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import EmployeeTaskViewer from "@/app/admin/tasks/employee-task-viewer";
+import MobileMenu from "@/components/mobile-menu";
 
 type Option = { id: string; name: string };
 
@@ -28,6 +29,7 @@ export default function AdminTasksPage() {
   }
 
   return <main className="form-page">
+    <MobileMenu />
     <a className="back-link" href="/admin/dashboard">← Admin overview</a>
     <div className="admin-task-columns">
       <section className="admin-task-column">

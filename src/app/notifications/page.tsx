@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import LiveClock from "@/components/live-clock";
 import ProfileMenu from "@/components/profile-menu";
+import MobileMenu from "@/components/mobile-menu";
 
 export default async function NotificationsPage() {
   const user = await getCurrentUser();
@@ -11,6 +12,7 @@ export default async function NotificationsPage() {
   const notifications = await prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 50 });
   return (
     <main className="workspace">
+      <MobileMenu />
       <aside className="sidebar">
         <div className="side-brand">SHIS<span>•</span></div>
         <p className="side-label">WORKSPACE</p>
