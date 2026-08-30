@@ -5,21 +5,29 @@ import { Role } from "@prisma/client";
 
 export async function POST() {
   try {
-    // Create enum types first
-    const createEnums = [
-      `CREATE TYPE IF NOT EXISTS "Role" AS ENUM ('ADMIN', 'EMPLOYEE')`,
-      `CREATE TYPE IF NOT EXISTS "TaskStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED')`,
-      `CREATE TYPE IF NOT EXISTS "Priority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT')`,
-      `CREATE TYPE IF NOT EXISTS "MessageType" AS ENUM ('TEXT', 'IMAGE', 'DOCUMENT', 'FILE')`,
-      `CREATE TYPE IF NOT EXISTS "PresenceStatus" AS ENUM ('AVAILABLE', 'AWAY', 'DO_NOT_DISTURB', 'BE_RIGHT_BACK', 'OFFLINE')`
+    // Create enum types first (PostgreSQL doesn't support IF NOT EXISTS for types, so we check manually)
+    const enumTypes = [
+      { name: "Role", values: ['ADMIN', 'EMPLOYEE'] },
+      { name: "TaskStatus", values: ['PENDING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED'] },
+      { name: "Priority", values: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] },
+      { name: "MessageType", values: ['TEXT', 'IMAGE', 'DOCUMENT', 'FILE'] },
+      { name: "PresenceStatus", values: ['AVAILABLE', 'AWAY', 'DO_NOT_DISTURB', 'BE_RIGHT_BACK', 'OFFLINE'] }
     ];
 
-    for (const sql of createEnums) {
+    for (const enumType of enumTypes) {
       try {
-        await prisma.$executeRawUnsafe(sql);
+        // Check if enum exists
+        const result = await prisma.$queryRawUnsafe(
+          `SELECT 1 FROM pg_type WHERE typname = '${enumType.name}'`
+        );
+        if (!result || (Array.isArray(result) && result.length === 0)) {
+          // Create enum if it doesn't exist
+          await prisma.$executeRawUnsafe(
+            `CREATE TYPE "${enumType.name}" AS ENUM (${enumType.values.map(v => `'${v}'`).join(', ')})`
+          );
+        }
       } catch (e) {
-        // Ignore if enum already exists
-        console.log("Enum creation info:", e);
+        console.log(`Enum ${enumType.name} creation info:`, e);
       }
     }
 
