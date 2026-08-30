@@ -5,6 +5,24 @@ import { Role } from "@prisma/client";
 
 export async function POST() {
   try {
+    // Create enum types first
+    const createEnums = [
+      `CREATE TYPE IF NOT EXISTS "Role" AS ENUM ('ADMIN', 'EMPLOYEE')`,
+      `CREATE TYPE IF NOT EXISTS "TaskStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED')`,
+      `CREATE TYPE IF NOT EXISTS "Priority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT')`,
+      `CREATE TYPE IF NOT EXISTS "MessageType" AS ENUM ('TEXT', 'IMAGE', 'DOCUMENT', 'FILE')`,
+      `CREATE TYPE IF NOT EXISTS "PresenceStatus" AS ENUM ('AVAILABLE', 'AWAY', 'DO_NOT_DISTURB', 'BE_RIGHT_BACK', 'OFFLINE')`
+    ];
+
+    for (const sql of createEnums) {
+      try {
+        await prisma.$executeRawUnsafe(sql);
+      } catch (e) {
+        // Ignore if enum already exists
+        console.log("Enum creation info:", e);
+      }
+    }
+
     // Create tables using raw SQL since Prisma db push doesn't work in serverless
     const createTables = [
       `CREATE TABLE IF NOT EXISTS "Department" (
