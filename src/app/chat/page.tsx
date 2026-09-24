@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import MobileMenu from "@/components/mobile-menu";
 
 type Message = { id: string; message: string; createdAt: string; messageType?: string; sender: { id: string; name: string }; attachments?: { id: string; originalFilename: string }[] };
 const roomId = "general-it-team";
@@ -32,7 +31,7 @@ export default function ChatPage() {
   const [error, setError] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(true);
   const knownMessages = useRef<Set<string> | null>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);f
 
   const refresh = useCallback(async () => {
     const response = await fetch(`/api/chat/messages?roomId=${roomId}`, { cache: "no-store" });
@@ -64,5 +63,5 @@ export default function ChatPage() {
 
   async function toggleSound() { if (soundEnabled && "Notification" in window && Notification.permission === "default") { await Notification.requestPermission(); playMessageSound(); return; } const next = !soundEnabled; if (next) playMessageSound(); setSoundEnabled(next); }
 
-  return <main className="chat-page"><MobileMenu /><header className="chat-header"><a href="/dashboard">← Workspace</a><div><p className="eyebrow">LIVE CHANNEL</p><h1>General IT Team</h1></div><button className={`sound-toggle ${soundEnabled ? "on" : ""}`} onClick={toggleSound} aria-pressed={soundEnabled}>{soundEnabled ? "Sound on" : "Sound off"}</button><span className="live-dot">LIVE</span></header><section className="messages">{messages.length === 0 && <div className="chat-empty">Start the conversation with your IT team.</div>}{messages.map((item) => <div className={`message ${item.sender.id === viewerId ? "mine" : ""}`} key={item.id}><div className="message-avatar">{item.sender.name.charAt(0)}</div><div><strong>{item.sender.name}</strong><p>{item.attachments?.[0] ? <a className="attachment-link" href={`/api/chat/files/${item.attachments[0].id}`} target="_blank" rel="noreferrer">{item.message} ↗</a> : item.message}</p><small>{new Date(item.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</small></div></div>)}<div ref={endRef} /></section>{error && <p className="form-error chat-error">{error}</p>}<form className="chat-composer" onSubmit={send}><label className="file-button" htmlFor="chat-file">＋ file<input id="chat-file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></label><input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={file ? file.name : "Write a message to the team..."} maxLength={4000} disabled={Boolean(file)} /><button className="primary-button">{file ? "Upload" : "Send"} <span>↗</span></button></form></main>;
+  return <main className="chat-page"><header className="chat-header"><a href="/dashboard">← Workspace</a><div><p className="eyebrow">LIVE CHANNEL</p><h1>General IT Team</h1></div><button className={`sound-toggle ${soundEnabled ? "on" : ""}`} onClick={toggleSound} aria-pressed={soundEnabled}>{soundEnabled ? "Sound on" : "Sound off"}</button><span className="live-dot">LIVE</span></header><section className="messages">{messages.length === 0 && <div className="chat-empty">Start the conversation with your IT team.</div>}{messages.map((item) => <div className={`message ${item.sender.id === viewerId ? "mine" : ""}`} key={item.id}><div className="message-avatar">{item.sender.name.charAt(0)}</div><div><strong>{item.sender.name}</strong><p>{item.attachments?.[0] ? <a className="attachment-link" href={`/api/chat/files/${item.attachments[0].id}`} target="_blank" rel="noreferrer">{item.message} ↗</a> : item.message}</p><small>{new Date(item.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</small></div></div>)}<div ref={endRef} /></section>{error && <p className="form-error chat-error">{error}</p>}<form className="chat-composer" onSubmit={send}><label className="file-button" htmlFor="chat-file">＋ file<input id="chat-file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></label><input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={file ? file.name : "Write a message to the team..."} maxLength={4000} disabled={Boolean(file)} /><button className="primary-button">{file ? "Upload" : "Send"} <span>↗</span></button></form></main>;
 }

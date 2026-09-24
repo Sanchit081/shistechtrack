@@ -6,7 +6,14 @@
   }
 
   .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    max-width: 80vw;
     transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
   }
 
   .sidebar.active {
@@ -27,6 +34,11 @@
 
   .topbar {
     padding: 0 16px;
+    height: 64px;
+  }
+
+  .topbar-actions {
+    gap: 12px;
   }
 
   .page-content {
@@ -180,6 +192,58 @@
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
     z-index: 1000;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  .employee-detail button {
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  /* Form improvements */
+  .form-page {
+    padding: 20px 16px;
+  }
+
+  .back-link {
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+
+  .form-header {
+    margin-bottom: 24px;
+  }
+
+  .form-header h1 {
+    font-size: 24px;
+  }
+
+  .form-header p {
+    font-size: 14px;
+  }
+
+  .control-form label {
+    margin-bottom: 16px;
+  }
+
+  .control-form input,
+  .control-form select,
+  .control-form textarea {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .control-form textarea {
+    min-height: 120px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    margin-top: 16px;
   }
 
   /* Touch-friendly buttons */
@@ -191,6 +255,35 @@
 
   .icon-button {
     padding: 12px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .mobile-menu-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1002;
+    background: #f5f7f3;
+    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .topbar {
+    padding-left: 70px; /* Make room for menu button */
+    padding-right: 16px;
+  }
+
+  .topbar span {
+    font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Profile menu mobile */
@@ -224,5 +317,56 @@
 
   .page-content {
     padding: 32px 12px;
+  }
+
+  .mobile-menu-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .topbar {
+    padding-left: 64px;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .workspace {
+    grid-template-columns: 200px 1fr;
+  }
+
+  .sidebar {
+    padding: 24px 16px;
+  }
+
+  .side-brand {
+    font-size: 18px;
+    padding: 0 12px 40px;
+  }
+
+  .sidebar nav a {
+    font-size: 11px;
+    padding: 12px;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .department-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .page-content {
+    padding: 50px 4%;
+  }
+
+  .admin-task-columns {
+    gap: 24px;
+  }
+
+  .employee-columns {
+    gap: 24px;
   }
 }
