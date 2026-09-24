@@ -468,11 +468,16 @@
   }
 
   .topbar span {
-    font-size: 9px;
+    font-size: 10px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
+    overflow: visible;
+    text-overflow: clip;
+    max-width: none;
+    color: #899690;
+  }
+
+  .topbar-actions {
+    flex-shrink: 0;
   }
 
   /* Content section improvements */
@@ -508,6 +513,11 @@
 
   /* Profile menu mobile */
   .profile-menu {
+    position: relative;
+    z-index: 1001;
+  }
+
+  .profile-popover {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -516,12 +526,50 @@
     border-radius: 16px 16px 0 0;
     max-height: 50vh;
     z-index: 1001;
+    width: 100%;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  }
+
+  .profile-menu.compact .profile-popover {
+    left: auto;
+    right: 0;
+    top: 50px;
+    bottom: auto;
+    width: 220px;
+    border-radius: 8px;
+  }
+
+  .topbar .profile-menu .profile-popover {
+    left: auto;
+    right: 16px;
+    top: 60px;
+    bottom: auto;
+    width: 220px;
+    border-radius: 8px;
   }
 
   /* Sidebar improvements */
   .sidebar nav a {
     padding: 16px;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #9ab9a4;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+
+  .sidebar nav a:active,
+  .sidebar nav a:hover {
+    background: #285947;
+    color: #f4fff5;
+  }
+
+  .sidebar nav a.active {
+    background: #285947;
+    color: #f4fff5;
   }
 
   .sidebar nav a span {
@@ -530,6 +578,10 @@
 
   .side-bottom {
     padding: 16px;
+  }
+
+  .side-bottom .profile-menu {
+    width: 100%;
   }
 
   /* Notification improvements */
