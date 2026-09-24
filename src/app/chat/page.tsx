@@ -31,7 +31,7 @@ export default function ChatPage() {
   const [error, setError] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(true);
   const knownMessages = useRef<Set<string> | null>(null);
-  const endRef = useRef<HTMLDivElement>(null);f
+  const endRef = useRef<HTMLDivElement>(null);
 
   const refresh = useCallback(async () => {
     const response = await fetch(`/api/chat/messages?roomId=${roomId}`, { cache: "no-store" });
