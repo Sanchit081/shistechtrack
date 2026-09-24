@@ -1,8 +1,17 @@
 /* Mobile Responsive Styles */
 
 @media (max-width: 768px) {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
   .workspace {
     grid-template-columns: 1fr;
+    display: block;
   }
 
   .sidebar {
@@ -10,10 +19,13 @@
     left: 0;
     top: 0;
     width: 280px;
-    max-width: 80vw;
+    max-width: 85vw;
+    height: 100vh;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     z-index: 1000;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
   }
 
   .sidebar.active {
@@ -22,6 +34,13 @@
 
   .sidebar-overlay {
     display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
   }
 
   .sidebar-overlay.active {
@@ -29,63 +48,126 @@
   }
 
   .mobile-menu-btn {
-    display: block;
+    display: flex;
+  }
+
+  .workspace-main {
+    width: 100%;
+    min-height: 100vh;
   }
 
   .topbar {
-    padding: 0 16px;
+    padding: 0 70px 0 16px;
     height: 64px;
+    position: sticky;
+    top: 0;
+    background: #f5f7f3;
+    z-index: 10;
   }
 
   .topbar-actions {
-    gap: 12px;
+    gap: 8px;
   }
 
   .page-content {
-    padding: 40px 16px;
+    padding: 24px 16px;
   }
 
   .stat-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 32px;
+    gap: 12px;
+    margin-top: 24px;
   }
 
   .stat-card {
-    padding: 16px;
+    padding: 20px 16px;
+    min-height: 100px;
   }
 
   .stat-card strong {
+    font-size: 28px;
+  }
+
+  .stat-card span {
+    font-size: 12px;
+  }
+
+  .stat-card small {
+    font-size: 10px;
+  }
+
+  .welcome {
+    margin-bottom: 24px;
+  }
+
+  .welcome h1 {
     font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .welcome p {
+    font-size: 14px;
   }
 
   .task-row {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     padding: 16px;
+    align-items: flex-start;
+  }
+
+  .task-icon {
+    display: none;
   }
 
   .task-main {
     width: 100%;
   }
 
+  .task-main strong {
+    font-size: 16px;
+  }
+
+  .task-main span {
+    font-size: 14px;
+  }
+
   .task-date {
     font-size: 12px;
+    align-self: flex-start;
+  }
+
+  .priority {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .task-status {
+    font-size: 11px;
   }
 
   .section-heading {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-heading h2 {
+    font-size: 20px;
+  }
+
+  .section-heading a {
+    font-size: 14px;
   }
 
   .department-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
   }
 
   .department-card {
-    padding: 20px;
+    padding: 24px 20px;
   }
 
   .login-page {
@@ -109,29 +191,103 @@
   }
 
   /* Chat mobile styles */
-  .chat-container {
+  .chat-page {
+    display: flex;
     flex-direction: column;
+    height: 100vh;
   }
 
-  .chat-sidebar {
-    width: 100%;
+  .chat-header {
+    padding: 16px;
     height: auto;
-    max-height: 200px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chat-header h1 {
+    font-size: 18px;
+  }
+
+  .chat-header .eyebrow {
+    font-size: 10px;
+  }
+
+  .chat-header a {
+    font-size: 14px;
+  }
+
+  .messages {
+    flex: 1;
     overflow-y: auto;
+    padding: 16px;
+    min-height: calc(100vh - 200px);
   }
 
-  .chat-messages {
-    height: calc(100vh - 400px);
-  }
-
-  .chat-input {
+  .message {
     padding: 12px;
+    gap: 12px;
+  }
+
+  .message-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .message strong {
+    font-size: 14px;
+  }
+
+  .message p {
+    font-size: 14px;
+  }
+
+  .message small {
+    font-size: 11px;
+  }
+
+  .chat-composer {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .chat-composer input {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .chat-composer button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .file-button {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .sound-toggle {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .live-dot {
+    font-size: 10px;
   }
 
   /* Task form mobile styles */
   .task-form,
   .control-form {
-    padding: 20px;
+    padding: 20px 16px;
+  }
+
+  .task-form label,
+  .control-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
   }
 
   .task-form input,
@@ -141,7 +297,9 @@
   .control-form select,
   .control-form textarea {
     font-size: 16px; /* Prevent zoom on iOS */
-    padding: 16px;
+    padding: 14px;
+    border-radius: 8px;
+    width: 100%;
   }
 
   .task-form button,
@@ -149,6 +307,7 @@
     width: 100%;
     padding: 16px;
     font-size: 16px;
+    border-radius: 8px;
   }
 
   .form-row {
@@ -162,6 +321,7 @@
 
   .admin-task-columns {
     flex-direction: column;
+    gap: 24px;
   }
 
   .admin-task-column {
@@ -170,6 +330,7 @@
 
   .employee-columns {
     flex-direction: column;
+    gap: 24px;
   }
 
   .employee-review,
@@ -182,23 +343,49 @@
     overflow-y: auto;
   }
 
+  .employee-row {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .employee-row strong {
+    font-size: 16px;
+  }
+
+  .employee-row small {
+    font-size: 12px;
+  }
+
+  .employee-row-status {
+    font-size: 12px;
+  }
+
   .employee-detail {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     background: white;
-    padding: 20px;
+    padding: 24px 20px;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
     z-index: 1000;
-    max-height: 50vh;
+    max-height: 60vh;
     overflow-y: auto;
+  }
+
+  .employee-detail h2 {
+    font-size: 20px;
+  }
+
+  .employee-detail p {
+    font-size: 14px;
   }
 
   .employee-detail button {
     width: 100%;
     margin-top: 16px;
+    padding: 16px;
   }
 
   /* Form improvements */
@@ -261,10 +448,11 @@
 
   .mobile-menu-btn {
     position: fixed;
-    top: 16px;
-    left: 16px;
+    top: 12px;
+    left: 12px;
     z-index: 1002;
     background: #f5f7f3;
+    border: 1px solid #dce6e1;
     border-radius: 8px;
     width: 44px;
     height: 44px;
@@ -275,7 +463,7 @@
   }
 
   .topbar {
-    padding-left: 70px; /* Make room for menu button */
+    padding-left: 70px;
     padding-right: 16px;
   }
 
@@ -284,6 +472,38 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 150px;
+  }
+
+  /* Content section improvements */
+  .content-section {
+    margin-top: 24px;
+  }
+
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .viewer-empty {
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  /* Product credit footer */
+  .product-credit {
+    margin-top: 40px;
+    padding-top: 20px;
+    font-size: 12px;
+    text-align: center;
   }
 
   /* Profile menu mobile */
@@ -295,6 +515,84 @@
     top: auto;
     border-radius: 16px 16px 0 0;
     max-height: 50vh;
+    z-index: 1001;
+  }
+
+  /* Sidebar improvements */
+  .sidebar nav a {
+    padding: 16px;
+    font-size: 14px;
+  }
+
+  .sidebar nav a span {
+    font-size: 14px;
+  }
+
+  .side-bottom {
+    padding: 16px;
+  }
+
+  /* Notification improvements */
+  .form-error {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .success-message {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  /* Detail departments */
+  .detail-departments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .detail-departments span {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* Checkbox improvements */
+  .control-form input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+  }
+
+  /* Select improvements */
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231733f34%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 36px;
+  }
+
+  /* Date input improvements */
+  input[type="date"] {
+    appearance: none;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
   }
 }
 
