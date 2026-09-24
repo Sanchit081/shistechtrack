@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -31,6 +32,14 @@ export default function MobileMenu() {
     }
   };
 
+  const toggleNavDropdown = () => {
+    setIsNavOpen(!isNavOpen);
+    const dropdown = document.querySelector('.mobile-nav-dropdown');
+    if (dropdown) {
+      dropdown.classList.toggle('active');
+    }
+  };
+
   // Close menu when clicking on navigation links
   useEffect(() => {
     const navLinks = document.querySelectorAll('.sidebar nav a');
@@ -42,6 +51,33 @@ export default function MobileMenu() {
         link.removeEventListener('click', closeMenu);
       });
     };
+  }, []);
+
+  // Add navigation dropdown functionality
+  useEffect(() => {
+    const topbarSpan = document.querySelector('.topbar span');
+    if (topbarSpan) {
+      topbarSpan.addEventListener('click', toggleNavDropdown);
+      return () => {
+        topbarSpan.removeEventListener('click', toggleNavDropdown);
+      };
+    }
+  }, []);
+
+  // Close nav dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = document.querySelector('.mobile-nav-dropdown');
+      const topbarSpan = document.querySelector('.topbar span');
+      if (dropdown && topbarSpan && 
+          !dropdown.contains(event.target as Node) && 
+          !topbarSpan.contains(event.target as Node)) {
+        dropdown.classList.remove('active');
+        setIsNavOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -59,6 +95,12 @@ export default function MobileMenu() {
         onClick={closeMenu}
         aria-hidden={!isOpen}
       />
+      <div className="mobile-nav-dropdown">
+        <a href="/dashboard">My Dashboard</a>
+        <a href="/dashboard/tasks">My Tasks</a>
+        <a href="/chat">Team Chat</a>
+        <a href="/notifications">Notifications</a>
+      </div>
     </>
   );
 }
